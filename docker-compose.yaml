@@ -1,0 +1,12 @@
+# DON'T USE THIS FILE IN PRODUCTION. FOR TESTING PURPOSES ONLY
+services:
+    mqtt-bridge-test:
+        container_name: mqtt-bridge-test
+        env_file:
+          - .env
+        build:
+          context: .
+          dockerfile: ./Dockerfile_local
+        volumes:
+            - ./id_rsa:/app/config/id_rsa:ro
+        tty: true

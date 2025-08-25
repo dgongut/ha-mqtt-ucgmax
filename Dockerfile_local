@@ -1,0 +1,10 @@
+FROM alpine:3.22.1
+
+WORKDIR /app
+COPY . .
+RUN apk add --no-cache python3 py3-pip tzdata
+RUN export PIP_BREAK_SYSTEM_PACKAGES=1; pip3 install --no-cache-dir -Ur /app/requirements.txt
+
+#ENTRYPOINT ["python3", "test.py"]
+ENTRYPOINT ["python3", "mqtt-bridge.py"]
+#ENTRYPOINT ["cat", "/app/config/id_rsa"]
