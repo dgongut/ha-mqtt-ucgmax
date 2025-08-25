@@ -23,6 +23,14 @@ Expone una entidad ventilador en Home Assistant que controlará el ventilador de
 > [!WARNING]
 > Será necesario mapear un volumen para la clave SSH: /path/en/host/id_rsa:/app/config/id_rsa:ro
 
+##
+> [!WARNING]
+> Será necesario haber habilitado el SSH en el UCG-Max
+
+##
+> [!WARNING]
+> Será necesario tener la integración de MQTT instalada en Home Assistant escuchando en el topic ID con el prefijo que le pongáis en `HA_DISCOVERY_PREFIX` en el Docker-Compose
+
 ## Cómo generar la clave SSH para el contenedor
 
 1. Genera una clave nueva en tu máquina:
