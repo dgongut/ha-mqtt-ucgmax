@@ -57,11 +57,16 @@ def percentage_to_pwm(porcentaje: int) -> int:
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
         debug("Conectado a MQTT correctamente (v2)")
-        client.subscribe(MQTT_TOPIC_PERCENTAGE_SET)
-        client.subscribe(MQTT_TOPIC_POWER_SET)
+
+        # Suscribirse a topics de comandos
+        result_perc = client.subscribe(MQTT_TOPIC_PERCENTAGE_SET)
+        result_power = client.subscribe(MQTT_TOPIC_POWER_SET)
+        debug(f"Suscrito a {MQTT_TOPIC_PERCENTAGE_SET}: {result_perc}")
+        debug(f"Suscrito a {MQTT_TOPIC_POWER_SET}: {result_power}")
 
         # Publicar disponibilidad
-        client.publish(MQTT_TOPIC_AVAIL, "online", retain=True)
+        result = client.publish(MQTT_TOPIC_AVAIL, "online", retain=True)
+        debug(f"Publicado availability 'online': rc={result.rc}")
 
         # Enviar configuración de discovery para HA
         discovery_topic = f"{HA_DISCOVERY_PREFIX}/fan/ucgmax/config"
@@ -84,10 +89,27 @@ def on_connect(client, userdata, flags, reason_code, properties):
             "payload_on": "ON",
             "payload_off": "OFF"
         }
-        client.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
+        result = client.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
+        debug(f"Publicado discovery config en {discovery_topic}: rc={result.rc}")
+        if result.rc == 0:
+            debug("✓ Discovery enviado correctamente a Home Assistant")
+        else:
+            error(f"✗ Error al publicar discovery: código {result.rc}")
 
     else:
-        error("Error de conexión MQTT, código:", reason_code)
+        error(f"Error de conexión MQTT, código: {reason_code}")
+
+def on_publish(client, userdata, mid, reason_code, properties):
+    """Callback cuando se publica un mensaje"""
+    if reason_code != 0:
+        error(f"Error al publicar mensaje mid={mid}: código {reason_code}")
+
+def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
+    """Callback cuando se desconecta del broker"""
+    if reason_code != 0:
+        warning(f"Desconectado del broker MQTT: código {reason_code}")
+    else:
+        debug("Desconectado del broker MQTT correctamente")
 
 def on_message(client, userdata, msg):
     global ultimo_porcentaje_publicado, ultimo_estado_power
@@ -141,6 +163,8 @@ client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, protocol=mqtt.MQTTv311)
 client.username_pw_set(MQTT_BROKER_USER, MQTT_BROKER_PASS)
 client.on_connect = on_connect
 client.on_message = on_message
+client.on_publish = on_publish
+client.on_disconnect = on_disconnect
 
 client.will_set(MQTT_TOPIC_AVAIL, "offline", retain=True)
 

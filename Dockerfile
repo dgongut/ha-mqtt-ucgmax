@@ -1,6 +1,6 @@
 FROM alpine:3.22.1
 
-ARG VERSION=1.0.1
+ARG VERSION=1.0.2
 
 WORKDIR /app
 RUN wget https://github.com/dgongut/ha-mqtt-ucgmax/archive/refs/tags/v${VERSION}.tar.gz -P /tmp
