@@ -68,6 +68,12 @@ def on_connect(client, userdata, flags, reason_code, properties):
         discovery_payload = {
             "name": HA_ENTITY_NAME,
             "unique_id": HA_ENTITY_ID,
+            "device": {
+                "identifiers": ["ucgmax_fan"],
+                "name": "UCG-Max",
+                "manufacturer": "UCG",
+                "model": "UCG-Max"
+            },
             "availability_topic": MQTT_TOPIC_AVAIL,
             "command_topic": MQTT_TOPIC_POWER_SET,
             "state_topic": MQTT_TOPIC_POWER_STATE,
